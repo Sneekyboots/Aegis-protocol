@@ -1,0 +1,103 @@
+{
+  "theme": "DARK",
+  "archetype": "Cinematic Deep Tech",
+  "domain": "Web3 Infrastructure & Cybersecurity",
+  "vibe": "Futuristic, cutting-edge, technical, builder-first. Not just another DeFi app, but core infrastructure. Deep depth, glassmorphism, glowing 3D objects against dark voids.",
+  "colors": {
+    "background_base": "#040914",
+    "background_surface": "rgba(255, 255, 255, 0.02)",
+    "background_glass": "rgba(11, 18, 33, 0.6)",
+    "primary": "#3B82F6",
+    "primary_glow": "#60A5FA",
+    "secondary": "#06B6D4",
+    "text_primary": "#FFFFFF",
+    "text_secondary": "#94A3B8",
+    "text_muted": "#64748B",
+    "border_subtle": "rgba(255, 255, 255, 0.1)",
+    "border_active": "rgba(59, 130, 246, 0.5)",
+    "status": {
+      "safe": "#10B981",
+      "warning": "#F59E0B",
+      "danger": "#EF4444"
+    }
+  },
+  "typography": {
+    "fonts": {
+      "heading": "Outfit, sans-serif",
+      "body": "IBM Plex Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-5xl md:text-6xl tracking-tighter font-medium",
+      "h2": "text-3xl md:text-4xl tracking-tight font-medium",
+      "h3": "text-2xl tracking-tight font-medium",
+      "h4": "text-xl font-medium",
+      "body": "text-base leading-relaxed text-slate-300",
+      "small_label": "text-xs uppercase tracking-[0.2em] text-slate-400 font-mono",
+      "data_value": "text-2xl font-mono tracking-tight"
+    }
+  },
+  "spacing_and_layout": {
+    "container": "max-w-7xl mx-auto px-6 md:px-12",
+    "section_padding": "py-24 md:py-32",
+    "bento_gap": "gap-6",
+    "card_padding": "p-6 md:p-8",
+    "border_radius": {
+      "card": "rounded-2xl",
+      "button": "rounded-full",
+      "badge": "rounded-full"
+    }
+  },
+  "surface_strategies": {
+    "glass_panels": "backdrop-blur-xl bg-white/[0.02] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:bg-white/[0.04] transition-all duration-300",
+    "dashboard_cards": "bg-[#0A101D] border border-white/5 rounded-2xl p-6",
+    "glow_effects": "absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
+  },
+  "media_urls": {
+    "hero_3d": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/e786d3e44bc4062a9079091cd2a1fa0df52980530f13181abe526bbbb481c2f9.png",
+      "description": "3D floating glass shield with electric blue and amber core.",
+      "usage": "Place in the right half of the Hero Section. Add a continuous slow up/down float animation via Framer Motion. Do not apply a heavy dark overlay; let the colors pop against the dark background."
+    },
+    "intent_node_safe": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/d50d5fb2a1727897660f0e5ef3e7e2b7e21914a0a8afbe8878e292b8ab8f3bb5.png",
+      "description": "3D glowing blue/green holographic data sphere.",
+      "usage": "Use as thumbnail or visual indicator inside the 'Safe/Approved' INTENT-001 and INTENT-002 cards."
+    },
+    "intent_node_rogue": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/622643229793ffa6ef9d477c8211f91b5796dcae0fc16d803711eeae85fbcbd2.png",
+      "description": "3D shattered glass data sphere emitting warning orange/red light.",
+      "usage": "Use prominently in the 'Blocked/High-Risk' INTENT-003 card and the 'Simulate Rogue Market' active state."
+    },
+    "features_bg": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/9ac6825ad45f3a6de61b5e67d36508bf54bc22b60c24b1b08bff827bd952ecb8.png",
+      "description": "Abstract 3D dark glass layers with subtle blue edge lighting.",
+      "usage": "Use as a background image with `object-cover` and a `bg-black/80` or `bg-[#040914]/90` overlay for the Features grid or overall page background to give deep texture."
+    }
+  },
+  "components_strategy": {
+    "header": "Sticky navigation, backdrop-blur-md bg-[#040914]/80, 1px border-b border-white/5. Includes Brand Logo (text 'AEGIS' in JetBrains Mono), Navigation Links, and a 'Launch App' Primary Button.",
+    "hero": "Two-column grid on desktop. Left: H1 heading, high-contrast subtext, and CTA buttons ('View Documentation', 'Simulate Exploit'). Right: The `hero_3d` asset floating. Background must have subtle radial gradient glows (blue top-right, cyan bottom-left).",
+    "market_bar": "A sticky glass bar (bottom or just below hero). Displays Live SUI/USDC Price, 24h Vol, Network TPS. Use `font-mono` for numbers. Flash green/red on mock data updates.",
+    "live_dashboard": "The core interactive piece. A bento grid layout (e.g., 3 columns). Includes 3 Intent Cards (INTENT-001, INTENT-002, INTENT-003). Each card must show a Risk Score (0-100), Status Badge, and small 3D node image. Use an interactive 'Kill Switch' button on the dashboard header.",
+    "intent_detail_modal": "Shadcn Dialog or Sheet. Triggered by clicking an Intent Card. Must include a risk timeline chart (use Recharts, AreaChart with gradient fill), Object ID (font-mono), and dynamic fields (Signer, Gas, Gas Budget) with visual risk breakdown.",
+    "problem_section": "Focus on typography and stark contrast. 'Over $20M+ lost to agent exploits.' Use high contrast white/red numbers against the dark background.",
+    "code_section": "A glassmorphism terminal-like window. Show 3 lines of Move code (e.g., `public entry fun execute_intent...`). Use syntax highlighting colors (Keywords in blue/pink, strings in green).",
+    "features_grid": "8 Bento-style cards. Use Phosphor Icons or Lucide (e.g., Shield, Activity, Lock). Some cards can span 2 columns. Apply `features_bg` lightly in the background of cards.",
+    "interactive_controls": "Include 3 specific buttons in a control panel: 'Kill Switch' (Danger red, locks the dashboard), 'Simulate Rogue Market' (Triggers high-risk intents to appear), 'Reset Demo' (Restores safe state).",
+    "cta": "Massive typography 'Secure Your Agents.' with final 'Deploy Firewall' button."
+  },
+  "instructions_to_main_agent": [
+    "Install necessary packages: `yarn add framer-motion recharts lucide-react clsx tailwind-merge`.",
+    "CRITICAL: Set the global background color in index.css to `#040914` and text color to `#FFFFFF`.",
+    "Use standard HTML tags for layout structure, heavily styled with Tailwind CSS.",
+    "Implement the Glassmorphism style exactly as defined: `backdrop-blur-xl bg-white/[0.02] border border-white/10`.",
+    "Use Framer Motion for floating elements (e.g., `<motion.img animate={{ y: [-10, 10, -10] }} transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }} />`).",
+    "For the Risk Timeline Chart in the modal, use Recharts `<AreaChart>` with a `defs` gradient `linearGradient` for a modern look.",
+    "CRITICAL: All interactive elements, buttons, and key data points MUST have a `data-testid` attribute (e.g., `data-testid=\"kill-switch-btn\"`, `data-testid=\"intent-card-001\"`).",
+    "Avoid using any purple or solid black. Stick to the Deep Slate, Electric Blue, Cyan, and status colors provided.",
+    "Do NOT use placeholder images. Use the precise URLs mapped in `media_urls`.",
+    "For the Move code snippet, wrap it in a `<pre><code>` block with custom Tailwind text colors to simulate syntax highlighting (e.g., `text-blue-400` for `public entry fun`).",
+    "Use `Outfit` for headings by adding it to your Google Fonts import and Tailwind config. Use `JetBrains Mono` for all Object IDs, Hashes, and Data points to reinforce the technical/builder aesthetic."
+  ]
+}
