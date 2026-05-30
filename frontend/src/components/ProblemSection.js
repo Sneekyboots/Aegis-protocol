@@ -1,67 +1,100 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, DollarSign, Brain, Lock } from "lucide-react";
+import { TrendingDown, AlertOctagon } from "lucide-react";
+
+const ROGUE_NODE = "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/622643229793ffa6ef9d477c8211f91b5796dcae0fc16d803711eeae85fbcbd2.png";
 
 export function ProblemSection() {
-  const problems = [
-    {
-      icon: DollarSign,
-      title: "$20M+ Lost to Agent Exploits",
-      description: "Euler Finance ($197M), Mango Markets ($114M), and numerous hallucinated agent decisions in 2024-25 resulted in catastrophic losses."
-    },
-    {
-      icon: Brain,
-      title: "Agents are Black Boxes",
-      description: "You give autonomous agents treasury access and pray. No persistent memory, no audit trail, no human oversight before irreversible execution."
-    },
-    {
-      icon: Lock,
-      title: "No Enforceable Risk Gates",
-      description: "Existing solutions lack real-time risk evaluation and emergency controls. When an agent goes rogue, it's already too late."
-    }
+  const exploits = [
+    { name: "Euler Finance", amount: "$197M", year: "2023", type: "Flash loan exploit" },
+    { name: "Mango Markets", amount: "$114M", year: "2022", type: "Oracle manipulation" },
+    { name: "Wintermute", amount: "$160M", year: "2022", type: "Hot wallet compromise" },
+    { name: "Hallucinated agent", amount: "$20M+", year: "2024-25", type: "Treasury misuse" },
   ];
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-transparent via-red-900/5 to-transparent">
-      <div className="max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-full mb-6">
-            <AlertTriangle className="w-4 h-4 text-red-400" />
-            <span className="text-sm text-red-400 font-medium">The Problem</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Web3 Agents Need Guardrails
-          </h2>
-          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-            In 2025, autonomous agents lost millions because of one bad trade. Without proper safeguards, your treasury is at risk.
-          </p>
-        </motion.div>
+    <section id="problem" className="relative py-24 md:py-32 overflow-hidden">
+      <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-red-500/10 rounded-full blur-[150px] -translate-y-1/2 pointer-events-none" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {problems.map((problem, index) => {
-            const Icon = problem.icon;
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-red-500/20 rounded-xl p-6 hover:border-red-500/40 transition-colors"
-              >
-                <div className="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center mb-4">
-                  <Icon className="w-6 h-6 text-red-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">{problem.title}</h3>
-                <p className="text-gray-400 leading-relaxed">{problem.description}</p>
-              </motion.div>
-            );
-          })}
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          {/* Left - 3D Rogue node */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="lg:col-span-5 relative flex items-center justify-center order-2 lg:order-1"
+          >
+            <div className="relative w-full max-w-sm">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-orange-500/15 blur-3xl rounded-full" />
+              <motion.img
+                src={ROGUE_NODE}
+                alt="Rogue agent visualization"
+                animate={{ y: [0, -10, 0], rotate: [0, 2, 0, -2, 0] }}
+                transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+                className="relative w-full drop-shadow-[0_0_60px_rgba(239,68,68,0.3)]"
+                data-testid="problem-3d-rogue"
+              />
+            </div>
+          </motion.div>
+
+          {/* Right - Content */}
+          <div className="lg:col-span-7 order-1 lg:order-2">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1 glass rounded-full mb-6">
+                <AlertOctagon className="w-3 h-3 text-red-400" />
+                <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-red-400">
+                  The Problem
+                </span>
+              </div>
+
+              <h2 className="font-heading text-4xl md:text-6xl font-medium tracking-tighter text-white mb-6 leading-[1.05]" data-testid="problem-title">
+                Agents have treasury access.
+                <br />
+                <span className="text-red-400">No one has the brakes.</span>
+              </h2>
+
+              <p className="text-lg text-slate-400 mb-10 leading-relaxed max-w-2xl">
+                In 2024-25 alone, autonomous agents have triggered <span className="font-mono text-white">$20M+</span> in
+                avoidable losses — one hallucinated swap, one manipulated oracle, one stale price feed at a time.
+                Today's "agent dashboards" are postmortems. Aegis is the firewall.
+              </p>
+
+              {/* Exploit grid */}
+              <div className="grid grid-cols-2 gap-3" data-testid="exploit-grid">
+                {exploits.map((exploit, i) => (
+                  <motion.div
+                    key={exploit.name}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.08 }}
+                    className="glass rounded-xl p-4 hover:border-red-500/30 transition-colors group"
+                    data-testid={`exploit-${i}`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <TrendingDown className="w-3.5 h-3.5 text-red-400" />
+                      <span className="text-[10px] font-mono text-slate-500">{exploit.year}</span>
+                    </div>
+                    <div className="font-mono text-2xl md:text-3xl text-white font-medium mb-1 group-hover:text-red-300 transition-colors">
+                      {exploit.amount}
+                    </div>
+                    <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400 truncate">
+                      {exploit.name}
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-1 truncate">
+                      {exploit.type}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
         </div>
       </div>
     </section>

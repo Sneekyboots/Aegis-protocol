@@ -1,118 +1,160 @@
 import { motion } from "framer-motion";
-import { CheckCircle, XCircle, AlertTriangle, Clock, Zap } from "lucide-react";
-import { Progress } from "./ui/progress";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
+import { CheckCircle2, XCircle, AlertTriangle, Clock, Cpu, ArrowUpRight, Zap } from "lucide-react";
 
-const getRiskLevel = (score) => {
-  if (score < 40) return { level: "safe", color: "text-green-400", bgColor: "bg-green-500/10", borderColor: "border-green-500/30" };
-  if (score < 70) return { level: "warning", color: "text-yellow-400", bgColor: "bg-yellow-500/10", borderColor: "border-yellow-500/30" };
-  return { level: "danger", color: "text-red-400", bgColor: "bg-red-500/10", borderColor: "border-red-500/30" };
+const SAFE_NODE = "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/d50d5fb2a1727897660f0e5ef3e7e2b7e21914a0a8afbe8878e292b8ab8f3bb5.png";
+const ROGUE_NODE = "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/622643229793ffa6ef9d477c8211f91b5796dcae0fc16d803711eeae85fbcbd2.png";
+
+const getRiskConfig = (score) => {
+  if (score < 40) return { 
+    level: "safe", 
+    color: "text-emerald-400", 
+    bg: "bg-emerald-500/10", 
+    border: "border-emerald-500/30",
+    barFrom: "from-emerald-500",
+    barTo: "to-cyan-400",
+    glow: "shadow-[0_0_30px_rgba(16,185,129,0.2)]"
+  };
+  if (score < 70) return { 
+    level: "warning", 
+    color: "text-amber-400", 
+    bg: "bg-amber-500/10", 
+    border: "border-amber-500/30",
+    barFrom: "from-amber-500",
+    barTo: "to-orange-400",
+    glow: "shadow-[0_0_30px_rgba(245,158,11,0.2)]"
+  };
+  return { 
+    level: "danger", 
+    color: "text-red-400", 
+    bg: "bg-red-500/10", 
+    border: "border-red-500/40",
+    barFrom: "from-red-500",
+    barTo: "to-orange-500",
+    glow: "shadow-[0_0_40px_rgba(239,68,68,0.3)]"
+  };
 };
 
 const getStatusConfig = (status) => {
   const configs = {
-    APPROVED: { icon: CheckCircle, color: "text-green-400", bg: "bg-green-500/10", border: "border-green-500/30", label: "APPROVED ✓" },
-    EXECUTED: { icon: Zap, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/30", label: "EXECUTED" },
-    BLOCKED: { icon: XCircle, color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/30", label: "BLOCKED 🛑" },
-    REVOKED: { icon: AlertTriangle, color: "text-orange-400", bg: "bg-orange-500/10", border: "border-orange-500/30", label: "REVOKED" },
+    APPROVED: { icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/30", label: "Approved" },
+    EXECUTED: { icon: Zap, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30", label: "Executed" },
+    BLOCKED: { icon: XCircle, color: "text-red-400", bg: "bg-red-500/10", border: "border-red-500/30", label: "Blocked" },
+    REVOKED: { icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30", label: "Revoked" },
   };
   return configs[status] || configs.APPROVED;
 };
 
 export function IntentCard({ intent, onClick, onSimulateRogue }) {
-  const riskConfig = getRiskLevel(intent.risk_score);
+  const riskConfig = getRiskConfig(intent.risk_score);
   const statusConfig = getStatusConfig(intent.status);
   const StatusIcon = statusConfig.icon;
-
-  const isRogueDemo = intent.id === "INTENT-003" && intent.status !== "BLOCKED";
+  const nodeImage = riskConfig.level === "danger" ? ROGUE_NODE : SAFE_NODE;
+  const isRogueDemo = intent.id === "INTENT-003" && intent.status !== "BLOCKED" && intent.status !== "REVOKED";
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
-      className={`intent-card cursor-pointer bg-gradient-to-br from-gray-900/80 to-gray-800/80 border ${riskConfig.borderColor} rounded-xl p-6 backdrop-blur-sm transition-all ${
-        riskConfig.level === "danger" ? "glow-red" : riskConfig.level === "warning" ? "glow-yellow" : "glow-green"
-      }`}
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
       onClick={onClick}
+      className={`group relative cursor-pointer glass-strong rounded-2xl p-6 border ${riskConfig.border} ${riskConfig.glow} hover:border-white/30 transition-all duration-300 overflow-hidden`}
       data-testid={`intent-card-${intent.id}`}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-4">
+      {/* Background 3D node image */}
+      <div className="absolute -top-8 -right-8 w-36 h-36 opacity-25 group-hover:opacity-50 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-2xl">
+        <img src={nodeImage} alt="" className="w-full h-full object-contain" />
+      </div>
+
+      {/* Top: ID and Status */}
+      <div className="relative flex items-start justify-between mb-5">
         <div>
-          <h3 className="text-lg font-bold text-white mb-1" data-testid="intent-id">
+          <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-500 mb-1">
+            Intent
+          </div>
+          <h3 className="font-mono text-lg text-white font-medium" data-testid={`intent-id-${intent.id}`}>
             {intent.id}
           </h3>
-          <p className="text-sm text-gray-400">
-            {intent.action}
-          </p>
         </div>
-        <Badge variant="outline" className={`${statusConfig.bg} ${statusConfig.border} ${statusConfig.color}`}>
-          {statusConfig.label}
-        </Badge>
-      </div>
-
-      {/* Risk Score */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-400">Risk Score:</span>
-          <span className={`text-2xl font-bold ${riskConfig.color}`} data-testid="risk-score">
-            {intent.risk_score}/100
+        
+        <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${statusConfig.bg} ${statusConfig.border}`}>
+          <StatusIcon className={`w-3 h-3 ${statusConfig.color}`} />
+          <span className={`text-[10px] font-mono uppercase tracking-wider font-semibold ${statusConfig.color}`}>
+            {statusConfig.label}
           </span>
         </div>
-        <Progress 
-          value={intent.risk_score} 
-          className={`h-2 ${riskConfig.bgColor}`}
-          indicatorClassName={riskConfig.level === "danger" ? "bg-red-500" : riskConfig.level === "warning" ? "bg-yellow-500" : "bg-green-500"}
-        />
       </div>
 
-      {/* Status & Quantum */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className={`${statusConfig.bg} ${statusConfig.border} border rounded-lg p-3`}>
-          <div className="flex items-center gap-2 mb-1">
-            <StatusIcon className={`w-4 h-4 ${statusConfig.color}`} />
-            <span className="text-xs text-gray-400">Status</span>
-          </div>
-          <div className={`text-sm font-semibold ${statusConfig.color}`}>
-            {intent.status}
-          </div>
+      {/* Action */}
+      <div className="relative mb-6">
+        <div className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-500 mb-1">
+          Action
         </div>
+        <p className="text-white text-sm font-medium">
+          {intent.action}
+        </p>
+      </div>
 
-        <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Zap className="w-4 h-4 text-purple-400" />
-            <span className="text-xs text-gray-400">Quantum</span>
-          </div>
-          <div className="text-sm font-semibold text-purple-400">
-            {intent.quantum}
-          </div>
+      {/* Risk Score - Big */}
+      <div className="relative mb-5">
+        <div className="flex items-baseline justify-between mb-2">
+          <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-500">
+            Risk Score
+          </span>
+          <span className="text-[10px] font-mono text-slate-500">/ 100</span>
+        </div>
+        <div className="flex items-center gap-3 mb-3">
+          <span className={`font-mono text-5xl font-medium ${riskConfig.color} leading-none`} data-testid={`risk-score-${intent.id}`}>
+            {intent.risk_score}
+          </span>
+          <span className={`risk-dot ${riskConfig.level} mb-1`} />
+        </div>
+        
+        {/* Risk bar */}
+        <div className="relative h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <motion.div 
+            initial={{ width: 0 }}
+            animate={{ width: `${intent.risk_score}%` }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className={`absolute inset-y-0 left-0 bg-gradient-to-r ${riskConfig.barFrom} ${riskConfig.barTo} rounded-full`}
+          />
         </div>
       </div>
 
-      {/* Expires In */}
-      <div className="flex items-center justify-between text-sm">
-        <div className="flex items-center gap-2 text-gray-400">
-          <Clock className="w-4 h-4" />
-          <span>Expires in:</span>
+      {/* Footer meta */}
+      <div className="relative grid grid-cols-2 gap-3 pt-4 border-t border-white/5">
+        <div>
+          <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">
+            <Cpu className="w-2.5 h-2.5" />
+            Quantum
+          </div>
+          <div className="text-xs font-mono text-cyan-300">{intent.quantum}</div>
         </div>
-        <span className="font-semibold text-white">{intent.expires_in}</span>
+        <div>
+          <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">
+            <Clock className="w-2.5 h-2.5" />
+            Expires
+          </div>
+          <div className="text-xs font-mono text-white">{intent.expires_in}</div>
+        </div>
       </div>
 
-      {/* Simulate Rogue Button (only for INTENT-003 demo) */}
+      {/* Simulate Rogue Button */}
       {isRogueDemo && (
-        <Button
-          variant="destructive"
-          size="sm"
-          className="w-full mt-4"
+        <button
           onClick={(e) => {
             e.stopPropagation();
             onSimulateRogue(intent.id);
           }}
+          className="relative w-full mt-4 py-2 text-xs font-mono uppercase tracking-wider text-red-300 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 rounded-lg transition-all"
           data-testid="simulate-rogue-button"
         >
-          🔥 Simulate Rogue Market
-        </Button>
+          Simulate Rogue Market
+        </button>
       )}
+
+      {/* Click indicator */}
+      <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+        <ArrowUpRight className="w-4 h-4 text-white/40" />
+      </div>
     </motion.div>
   );
 }

@@ -1,111 +1,132 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Github, BookOpen, MessageCircle } from "lucide-react";
-import { Button } from "./ui/button";
+import { ArrowUpRight, Github, BookOpen, MessageCircle, Shield } from "lucide-react";
 
 export function CTASection() {
   return (
-    <section className="py-20 px-4">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative py-24 md:py-32 overflow-hidden">
+      <div className="absolute inset-0 grid-bg opacity-30 pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-blue-500/10 rounded-full blur-[150px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
         {/* Main CTA */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-gradient-to-br from-purple-900/30 via-blue-900/30 to-purple-900/30 border border-purple-500/30 rounded-2xl p-12 text-center mb-12"
+          className="relative glass-strong rounded-3xl p-10 md:p-16 text-center mb-12 overflow-hidden border border-white/10"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to Secure Your Agents?
-          </h2>
-          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join protocols using Aegis to protect billions in autonomous agent transactions
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-lg px-8"
-              data-testid="cta-start-building"
+          {/* Inner glow */}
+          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-gradient-to-b from-blue-500/30 to-transparent rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="relative">
+            <motion.div
+              initial={{ scale: 0 }}
+              whileInView={{ scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2, type: "spring" }}
+              className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-6 shadow-[0_0_40px_rgba(59,130,246,0.5)]"
             >
-              Start Building
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-gray-700 hover:border-gray-600 bg-gray-900/50 text-lg px-8"
-              data-testid="cta-schedule-demo"
-            >
-              Schedule a Demo
-            </Button>
+              <Shield className="w-8 h-8 text-white" strokeWidth={2.5} />
+            </motion.div>
+
+            <h2 className="font-heading text-4xl md:text-6xl font-medium tracking-tighter text-white mb-6 leading-[1.05]" data-testid="cta-title">
+              Secure your agents.
+              <br />
+              <span className="text-gradient-blue">Deploy the firewall.</span>
+            </h2>
+            <p className="text-lg text-slate-400 mb-10 max-w-2xl mx-auto">
+              Join the protocols building safe, auditable agentic Web3 on Sui. Ship to testnet today.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button
+                className="group pill bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-medium flex items-center gap-2 text-sm md:text-base hover:shadow-[0_0_40px_rgba(59,130,246,0.6)] transition-all"
+                data-testid="cta-start-building"
+              >
+                Deploy Firewall
+                <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </button>
+              <button
+                className="pill glass text-white hover:bg-white/[0.06] text-sm md:text-base transition-all"
+                data-testid="cta-schedule-demo"
+              >
+                Talk to the team
+              </button>
+            </div>
           </div>
         </motion.div>
 
-        {/* Resources Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <motion.a
-            href="https://github.com/aegis-protocol"
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-xl p-6 hover:border-purple-500/50 transition-all group cursor-pointer"
-            data-testid="resource-github"
-          >
-            <Github className="w-8 h-8 text-purple-400 mb-4 group-hover:scale-110 transition-transform" />
-            <h3 className="text-lg font-bold text-white mb-2">View on GitHub</h3>
-            <p className="text-sm text-gray-400">Explore the open-source Move contracts and integration examples</p>
-          </motion.a>
-
-          <motion.a
-            href="https://docs.aegis-protocol.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-xl p-6 hover:border-purple-500/50 transition-all group cursor-pointer"
-            data-testid="resource-docs"
-          >
-            <BookOpen className="w-8 h-8 text-blue-400 mb-4 group-hover:scale-110 transition-transform" />
-            <h3 className="text-lg font-bold text-white mb-2">Documentation</h3>
-            <p className="text-sm text-gray-400">Complete guides, API references, and integration tutorials</p>
-          </motion.a>
-
-          <motion.a
-            href="https://discord.gg/aegis"
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="bg-gradient-to-br from-gray-900/80 to-gray-800/80 border border-gray-700 rounded-xl p-6 hover:border-purple-500/50 transition-all group cursor-pointer"
-            data-testid="resource-discord"
-          >
-            <MessageCircle className="w-8 h-8 text-green-400 mb-4 group-hover:scale-110 transition-transform" />
-            <h3 className="text-lg font-bold text-white mb-2">Join Community</h3>
-            <p className="text-sm text-gray-400">Connect with builders and get support from the core team</p>
-          </motion.a>
+        {/* Resources */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+          {[
+            { 
+              icon: Github, 
+              title: "GitHub", 
+              desc: "Open-source Move contracts and integration examples.",
+              testid: "resource-github",
+              iconColor: "text-blue-400"
+            },
+            { 
+              icon: BookOpen, 
+              title: "Documentation", 
+              desc: "Complete guides, API references, and integration tutorials.",
+              testid: "resource-docs",
+              iconColor: "text-cyan-400"
+            },
+            { 
+              icon: MessageCircle, 
+              title: "Community", 
+              desc: "Connect with builders and get support from the core team.",
+              testid: "resource-discord",
+              iconColor: "text-emerald-400"
+            },
+          ].map((r, i) => (
+            <motion.a
+              key={i}
+              href="#"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="group glass rounded-2xl p-6 hover:border-white/20 transition-all"
+              data-testid={r.testid}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <r.icon className={`w-6 h-6 ${r.iconColor}`} />
+                <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </div>
+              <h3 className="font-heading text-lg text-white font-medium mb-1">{r.title}</h3>
+              <p className="text-sm text-slate-400">{r.desc}</p>
+            </motion.a>
+          ))}
         </div>
-      </div>
 
-      {/* Footer */}
-      <motion.footer
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="text-center mt-20 pt-12 border-t border-gray-800"
-      >
-        <p className="text-gray-500 text-sm mb-4">
-          Built on Sui • Powered by Move • Secured by Aegis
-        </p>
-        <p className="text-gray-600 text-xs">
-          © 2025 Aegis Protocol. Making Web3 agents safe for production.
-        </p>
-      </motion.footer>
+        {/* Footer */}
+        <motion.footer
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="border-t border-white/5 pt-10"
+        >
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-white" strokeWidth={2.5} />
+              </div>
+              <span className="font-mono text-sm text-white">AEGIS</span>
+              <span className="text-xs text-slate-500 hidden sm:inline">· Execution Firewall for Agentic Web3</span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.2em] text-slate-500">
+              <span>Built on Sui</span>
+              <span>·</span>
+              <span>Powered by Move</span>
+            </div>
+          </div>
+          <p className="text-[11px] font-mono text-slate-600 text-center mt-6">
+            © 2026 Aegis Protocol · Making Web3 agents safe for production
+          </p>
+        </motion.footer>
+      </div>
     </section>
   );
 }
