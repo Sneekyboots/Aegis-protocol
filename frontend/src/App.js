@@ -1,54 +1,91 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
-import { HOME } from "@/constants/testIds";
+import { Dashboard } from "@/components/Dashboard";
+import { Toaster } from "@/components/ui/sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+function App() {
+  const [intents, setIntents] = useState([]);
+  const [marketData, setMarketData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchIntents = async () => {
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const response = await axios.get(`${API}/intents`);
+      setIntents(response.data);
+    } catch (error) {
+      console.error("Error fetching intents:", error);
+    }
+  };
+
+  const fetchMarketData = async () => {
+    try {
+      const response = await axios.get(`${API}/market/live`);
+      setMarketData(response.data);
+    } catch (error) {
+      console.error("Error fetching market data:", error);
     }
   };
 
   useEffect(() => {
-    helloWorldApi();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchIntents(), fetchMarketData()]);
+      setLoading(false);
+    };
+
+    loadData();
+
+    // Refresh data every 30 seconds
+    const interval = setInterval(() => {
+      fetchIntents();
+      fetchMarketData();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          data-testid={HOME.emergentLink}
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+  const handleSimulateRogue = async (intentId) => {
+    try {
+      await axios.post(`${API}/simulate-rogue`, { intent_id: intentId });
+      await fetchIntents();
+    } catch (error) {
+      console.error("Error simulating rogue market:", error);
+    }
+  };
 
-function App() {
+  const handleKillSwitch = async (intentId) => {
+    try {
+      await axios.post(`${API}/kill-switch/${intentId}`);
+      await fetchIntents();
+    } catch (error) {
+      console.error("Error activating kill switch:", error);
+    }
+  };
+
+  const handleResetDemo = async () => {
+    try {
+      await axios.post(`${API}/reset-demo`);
+      await fetchIntents();
+    } catch (error) {
+      console.error("Error resetting demo:", error);
+    }
+  };
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+    <div className="App min-h-screen bg-[#0a0a0b]">
+      <Dashboard
+        intents={intents}
+        marketData={marketData}
+        loading={loading}
+        onSimulateRogue={handleSimulateRogue}
+        onKillSwitch={handleKillSwitch}
+        onResetDemo={handleResetDemo}
+      />
+      <Toaster />
     </div>
   );
 }
