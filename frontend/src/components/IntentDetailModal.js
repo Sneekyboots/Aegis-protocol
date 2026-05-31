@@ -2,11 +2,43 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ExternalLink, AlertTriangle, TrendingDown, Droplets, Activity, Cpu, Copy, Shield } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { toast } from "sonner";
+import { useIntentBrain } from "@/hooks/useSuiIntents";
+import { QuantumBadge } from "./QuantumBadge";
 
 export function IntentDetailModal({ intent, open, onClose, onKillSwitch }) {
+  // Fetch live Dynamic Fields from chain; falls back to intent props when null
+  const { brain } = useIntentBrain(open ? intent?.object_id : null);
+
   if (!open || !intent) return null;
 
-  const riskLevel = intent.risk_score < 40 ? "safe" : intent.risk_score < 70 ? "warning" : "danger";
+  // Merge on-chain brain data over the event-sourced fallback
+  const risk = brain?.risk ?? {};
+  const riskBreakdown = {
+    volatility: Number(risk.volatility ?? intent.risk_breakdown?.volatility ?? 0),
+    liquidity: Number(risk.liquidity_risk ?? intent.risk_breakdown?.liquidity ?? 0),
+    concentration: Number(risk.concentration_risk ?? intent.risk_breakdown?.concentration ?? 0),
+    quantum: Number(risk.quantum_risk ?? intent.risk_breakdown?.quantum ?? 0),
+  };
+  const liveScore = Number(risk.total_score ?? intent.risk_score ?? 0);
+
+  const marketSnap = brain?.market ?? {};
+  const marketSnapshot = {
+    price: Number(marketSnap.price ?? intent.market_snapshot?.price ?? 0) / 1e6 || intent.market_snapshot?.price,
+    change_24h: Number(marketSnap.change_24h ?? intent.market_snapshot?.change_24h ?? 0),
+    volume_24h: marketSnap.volume_24h ? `$${(Number(marketSnap.volume_24h) / 1e9).toFixed(2)}B` : intent.market_snapshot?.volume_24h,
+    liquidity_depth: intent.market_snapshot?.liquidity_depth,
+  };
+
+  const policyData = brain?.policy ?? {};
+  const policy = {
+    max_risk: Number(policyData.max_risk ?? intent.policy?.max_risk ?? 70),
+    auto_execute: Boolean(policyData.auto_execute ?? intent.policy?.auto_execute),
+    min_liquidity: Number(policyData.min_liquidity ?? intent.policy?.min_liquidity ?? 500000),
+  };
+
+  const executionLog = Array.isArray(brain?.log) ? brain.log : intent.logs ?? [];
+
+  const riskLevel = liveScore < 40 ? "safe" : liveScore < 70 ? "warning" : "danger";
   const riskColor = riskLevel === "safe" ? "#10B981" : riskLevel === "warning" ? "#F59E0B" : "#EF4444";
   const canRevoke = !["REVOKED", "EXECUTED"].includes(intent.status);
 
@@ -14,15 +46,14 @@ export function IntentDetailModal({ intent, open, onClose, onKillSwitch }) {
     time: new Date(point.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
     score: point.score,
   }));
-  // Add current score as latest point
   chartData.push({
     time: new Date(intent.evaluated_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-    score: intent.risk_score,
+    score: liveScore,
   });
 
   const handleKillSwitch = () => {
     if (window.confirm(`Revoke ${intent.id}? This action is permanent and logged on-chain.`)) {
-      onKillSwitch(intent.id);
+      onKillSwitch(intent.object_id);
       toast.success(`${intent.id} revoked`, { description: "Execution permanently blocked" });
       onClose();
     }
@@ -169,7 +200,7 @@ export function IntentDetailModal({ intent, open, onClose, onKillSwitch }) {
                 <Shield className="w-4 h-4 text-blue-400" />
                 <h3 className="font-heading text-lg text-white font-medium">Dynamic Fields</h3>
                 <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 ml-1">
-                  · on-chain brain
+                  {brain ? '· live on-chain' : '· awaiting agent'}
                 </span>
               </div>
 
@@ -178,15 +209,15 @@ export function IntentDetailModal({ intent, open, onClose, onKillSwitch }) {
                 <div className="flex items-center justify-between mb-3">
                   <span className="font-mono text-xs text-cyan-300">risk</span>
                   <span className={`font-mono text-sm ${riskLevel === 'danger' ? 'text-red-400' : riskLevel === 'warning' ? 'text-amber-400' : 'text-emerald-400'}`}>
-                    {intent.risk_score}/100
+                    {liveScore}/100
                   </span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[
-                    { label: 'volatility', value: intent.risk_breakdown.volatility },
-                    { label: 'liquidity', value: intent.risk_breakdown.liquidity },
-                    { label: 'concentration', value: intent.risk_breakdown.concentration },
-                    { label: 'quantum', value: intent.risk_breakdown.quantum },
+                    { label: 'volatility', value: riskBreakdown.volatility },
+                    { label: 'liquidity', value: riskBreakdown.liquidity },
+                    { label: 'concentration', value: riskBreakdown.concentration },
+                    { label: 'quantum', value: riskBreakdown.quantum },
                   ].map((item) => (
                     <div key={item.label} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
                       <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mb-1">
@@ -205,10 +236,10 @@ export function IntentDetailModal({ intent, open, onClose, onKillSwitch }) {
                 <div className="font-mono text-xs text-cyan-300 mb-3">market</div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {[
-                    { label: 'base_price', value: `$${intent.market_snapshot.price}` },
-                    { label: '24h_change', value: `${intent.market_snapshot.change_24h}%`, color: intent.market_snapshot.change_24h < 0 ? 'text-red-400' : 'text-emerald-400' },
-                    { label: 'volume', value: `$${(intent.market_snapshot.volume_24h / 1000).toFixed(1)}K` },
-                    { label: 'liquidity_depth', value: `$${(intent.market_snapshot.liquidity_depth / 1000).toFixed(0)}K` },
+                    { label: 'base_price', value: `$${marketSnapshot.price}` },
+                    { label: '24h_change', value: `${marketSnapshot.change_24h}%`, color: marketSnapshot.change_24h < 0 ? 'text-red-400' : 'text-emerald-400' },
+                    { label: 'volume', value: marketSnapshot.volume_24h },
+                    { label: 'liquidity_depth', value: marketSnapshot.liquidity_depth },
                   ].map((item) => (
                     <div key={item.label} className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
                       <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mb-1">
@@ -230,21 +261,21 @@ export function IntentDetailModal({ intent, open, onClose, onKillSwitch }) {
                     <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mb-1">
                       max_risk
                     </div>
-                    <div className="font-mono text-sm text-white">{intent.policy.max_risk}/100</div>
+                    <div className="font-mono text-sm text-white">{policy.max_risk}/100</div>
                   </div>
                   <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
                     <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mb-1">
                       auto_execute
                     </div>
-                    <div className={`font-mono text-sm ${intent.policy.auto_execute ? 'text-emerald-400' : 'text-slate-400'}`}>
-                      {intent.policy.auto_execute ? "true" : "false"}
+                    <div className={`font-mono text-sm ${policy.auto_execute ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      {policy.auto_execute ? "true" : "false"}
                     </div>
                   </div>
                   <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3">
                     <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mb-1">
                       min_liquidity
                     </div>
-                    <div className="font-mono text-sm text-white">${(intent.policy.min_liquidity / 1000).toFixed(0)}K</div>
+                    <div className="font-mono text-sm text-white">${(policy.min_liquidity / 1000).toFixed(0)}K</div>
                   </div>
                 </div>
               </div>
@@ -267,7 +298,7 @@ export function IntentDetailModal({ intent, open, onClose, onKillSwitch }) {
             <div className="glass rounded-xl p-6">
               <h3 className="font-heading text-lg text-white font-medium mb-4">Execution Log</h3>
               <div className="space-y-2">
-                {intent.logs.map((log, index) => (
+                {executionLog.map((log, index) => (
                   <div key={index} className="flex gap-3 py-2 border-b border-white/5 last:border-0">
                     <div className="flex-shrink-0 mt-1.5">
                       <div className={`w-1.5 h-1.5 rounded-full ${

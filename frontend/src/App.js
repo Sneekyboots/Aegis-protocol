@@ -1,93 +1,119 @@
-import { useState, useEffect } from "react";
 import "@/App.css";
-import axios from "axios";
+import { useEffect, useState, useCallback } from "react";
 import { Dashboard } from "@/components/Dashboard";
 import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
+import { SuiProviders } from "@/components/SuiProviders";
+import { useRevokeIntent, useSuiIntents } from "@/hooks/useSuiIntents";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
 
-function App() {
-  const [intents, setIntents] = useState([]);
-  const [marketData, setMarketData] = useState(null);
-  const [loading, setLoading] = useState(true);
+const FALLBACK_MARKET = {
+  pair: 'SUI/USDC',
+  price: 3.85,
+  change_24h: 2.1,
+  volume_24h: '$1.25B',
+  liquidity_depth: '$5.0M',
+};
 
-  const fetchIntents = async () => {
-    try {
-      const response = await axios.get(`${API}/intents`);
-      setIntents(response.data);
-    } catch (error) {
-      console.error("Error fetching intents:", error);
-    }
-  };
-
-  const fetchMarketData = async () => {
-    try {
-      const response = await axios.get(`${API}/market/live`);
-      setMarketData(response.data);
-    } catch (error) {
-      console.error("Error fetching market data:", error);
-    }
-  };
-
+function useMarketPrice() {
+  const [data, setData] = useState(FALLBACK_MARKET);
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
-      await Promise.all([fetchIntents(), fetchMarketData()]);
-      setLoading(false);
+    const fetchPrice = async () => {
+      // Try backend first (keeps CoinGecko rate limits centralized)
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/market/live`, { signal: AbortSignal.timeout(5000) });
+        if (res.ok) {
+          const json = await res.json();
+          setData(json);
+          return;
+        }
+      } catch { /* fall through to direct CoinGecko */ }
+
+      // Direct CoinGecko fallback
+      try {
+        const res = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=sui&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true',
+          { signal: AbortSignal.timeout(5000) }
+        );
+        if (!res.ok) return;
+        const json = await res.json();
+        const sui = json.sui;
+        setData({
+          pair: 'SUI/USDC',
+          price: Math.round(sui.usd * 100) / 100,
+          change_24h: Math.round(sui.usd_24h_change * 100) / 100,
+          volume_24h: `$${(sui.usd_24h_vol / 1e9).toFixed(2)}B`,
+          liquidity_depth: '$5.0M',
+        });
+      } catch { /* keep fallback */ }
     };
-
-    loadData();
-
-    // Refresh data every 30 seconds
-    const interval = setInterval(() => {
-      fetchIntents();
-      fetchMarketData();
-    }, 30000);
-
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 60_000);
     return () => clearInterval(interval);
   }, []);
+  return data;
+}
 
-  const handleSimulateRogue = async (intentId) => {
+function AppContent() {
+  const { intents, loading, refetch } = useSuiIntents();
+  const { revokeIntent } = useRevokeIntent();
+  const marketData = useMarketPrice();
+
+  const handleKillSwitch = async (intentObjectId) => {
     try {
-      await axios.post(`${API}/simulate-rogue`, { intent_id: intentId });
-      await fetchIntents();
-    } catch (error) {
-      console.error("Error simulating rogue market:", error);
+      await revokeIntent(intentObjectId);
+      setTimeout(refetch, 2000);
+    } catch (err) {
+      console.error("Failed to revoke intent:", err);
     }
   };
 
-  const handleKillSwitch = async (intentId) => {
+  const handleSimulateRogue = useCallback(async () => {
+    toast.loading("Seeding rogue intent on-chain…", { id: "rogue" });
     try {
-      await axios.post(`${API}/kill-switch/${intentId}`);
-      await fetchIntents();
-    } catch (error) {
-      console.error("Error activating kill switch:", error);
+      const res = await fetch(`${BACKEND_URL}/api/simulate-rogue`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.detail || "Backend error");
+      toast.success("Rogue intent created!", {
+        id: "rogue",
+        description: `${body.message} Watching agent response…`,
+        duration: 6000,
+      });
+      // Refresh after a short delay to show the new intent
+      setTimeout(refetch, 3000);
+      // Refresh again after agent has time to evaluate it
+      setTimeout(refetch, 15000);
+    } catch (err) {
+      toast.error("Simulate rogue failed", {
+        id: "rogue",
+        description: String(err?.message || err),
+      });
     }
-  };
-
-  const handleResetDemo = async () => {
-    try {
-      await axios.post(`${API}/reset-demo`);
-      await fetchIntents();
-    } catch (error) {
-      console.error("Error resetting demo:", error);
-    }
-  };
+  }, [refetch]);
 
   return (
-    <div className="App min-h-screen bg-[#0a0a0b]">
+    <>
       <Dashboard
         intents={intents}
         marketData={marketData}
         loading={loading}
-        onSimulateRogue={handleSimulateRogue}
         onKillSwitch={handleKillSwitch}
-        onResetDemo={handleResetDemo}
+        onSimulateRogue={handleSimulateRogue}
+        onResetDemo={refetch}
       />
       <Toaster />
-    </div>
+    </>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <SuiProviders>
+      <AppContent />
+    </SuiProviders>
+  );
+}

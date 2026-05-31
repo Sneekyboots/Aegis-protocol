@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, XCircle, AlertTriangle, Clock, Cpu, ArrowUpRight, Zap } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Clock, Cpu, Zap } from "lucide-react";
+import { QuantumBadge } from "./QuantumBadge";
 
 const SAFE_NODE = "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/d50d5fb2a1727897660f0e5ef3e7e2b7e21914a0a8afbe8878e292b8ab8f3bb5.png";
 const ROGUE_NODE = "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/622643229793ffa6ef9d477c8211f91b5796dcae0fc16d803711eeae85fbcbd2.png";
@@ -126,7 +127,7 @@ export function IntentCard({ intent, onClick, onSimulateRogue }) {
             <Cpu className="w-2.5 h-2.5" />
             Quantum
           </div>
-          <div className="text-xs font-mono text-cyan-300">{intent.quantum}</div>
+          <QuantumBadge status={intent.quantum} />
         </div>
         <div>
           <div className="text-[9px] font-mono uppercase tracking-wider text-slate-500 mb-0.5 flex items-center gap-1">

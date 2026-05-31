@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Shield, RefreshCw } from "lucide-react";
+import { WalletButton } from "./WalletButton";
 
 const HERO_3D = "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/e786d3e44bc4062a9079091cd2a1fa0df52980530f13181abe526bbbb481c2f9.png";
 
@@ -85,12 +86,7 @@ export function Header({ onResetDemo }) {
               Reset
             </button>
 
-            <button
-              className="pill bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.5)]"
-              data-testid="launch-app-button"
-            >
-              Launch App
-            </button>
+            <WalletButton />
           </motion.div>
         </div>
       </div>
