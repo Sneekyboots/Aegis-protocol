@@ -21,8 +21,9 @@ export function MarketBar({ data }) {
             <span className="font-heading text-lg text-white font-medium" data-testid="market-pair">
               {data.pair}
             </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 px-2 py-0.5 bg-white/5 rounded-full">
-              DeepBook
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase tracking-wider text-emerald-400 px-2 py-0.5 bg-emerald-500/10 rounded-full animate-pulse">
+              <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />
+              Live
             </span>
           </div>
         </div>

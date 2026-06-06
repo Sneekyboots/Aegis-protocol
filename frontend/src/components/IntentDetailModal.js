@@ -6,37 +6,39 @@ import { useIntentBrain } from "@/hooks/useSuiIntents";
 import { QuantumBadge } from "./QuantumBadge";
 
 export function IntentDetailModal({ intent, open, onClose, onKillSwitch }) {
-  // Fetch live Dynamic Fields from chain; falls back to intent props when null
+  // Poll backend /api/intents/:id every 5s while modal is open for live data
   const { brain } = useIntentBrain(open ? intent?.object_id : null);
 
   if (!open || !intent) return null;
 
-  // Merge on-chain brain data over the event-sourced fallback
+  // brain._raw has full backend response; brain.risk/policy/market are pre-mapped
+  const raw = brain?._raw ?? {};
   const risk = brain?.risk ?? {};
+
   const riskBreakdown = {
-    volatility: Number(risk.volatility ?? intent.risk_breakdown?.volatility ?? 0),
-    liquidity: Number(risk.liquidity_risk ?? intent.risk_breakdown?.liquidity ?? 0),
-    concentration: Number(risk.concentration_risk ?? intent.risk_breakdown?.concentration ?? 0),
-    quantum: Number(risk.quantum_risk ?? intent.risk_breakdown?.quantum ?? 0),
+    volatility:    Number(risk.volatility    ?? raw.risk_breakdown?.volatility    ?? intent.risk_breakdown?.volatility    ?? 0),
+    liquidity:     Number(risk.liquidity_risk ?? raw.risk_breakdown?.liquidity    ?? intent.risk_breakdown?.liquidity     ?? 0),
+    concentration: Number(risk.concentration_risk ?? raw.risk_breakdown?.concentration ?? intent.risk_breakdown?.concentration ?? 0),
+    quantum:       Number(risk.quantum_risk   ?? raw.risk_breakdown?.quantum      ?? intent.risk_breakdown?.quantum       ?? 0),
   };
-  const liveScore = Number(risk.total_score ?? intent.risk_score ?? 0);
+  const liveScore = Number(risk.total_score ?? raw.risk_score ?? intent.risk_score ?? 0);
 
-  const marketSnap = brain?.market ?? {};
+  // Market snapshot — backend returns price in real dollars already
   const marketSnapshot = {
-    price: Number(marketSnap.price ?? intent.market_snapshot?.price ?? 0) / 1e6 || intent.market_snapshot?.price,
-    change_24h: Number(marketSnap.change_24h ?? intent.market_snapshot?.change_24h ?? 0),
-    volume_24h: marketSnap.volume_24h ? `$${(Number(marketSnap.volume_24h) / 1e9).toFixed(2)}B` : intent.market_snapshot?.volume_24h,
-    liquidity_depth: intent.market_snapshot?.liquidity_depth,
+    price:           raw.market_snapshot?.price          ?? intent.market_snapshot?.price          ?? 0,
+    change_24h:      raw.market_snapshot?.change_24h     ?? intent.market_snapshot?.change_24h     ?? 0,
+    volume_24h:      raw.market_snapshot?.volume_24h     ?? intent.market_snapshot?.volume_24h     ?? '$0',
+    liquidity_depth: raw.market_snapshot?.liquidity_depth ?? intent.market_snapshot?.liquidity_depth ?? '$0',
   };
 
-  const policyData = brain?.policy ?? {};
   const policy = {
-    max_risk: Number(policyData.max_risk ?? intent.policy?.max_risk ?? 70),
-    auto_execute: Boolean(policyData.auto_execute ?? intent.policy?.auto_execute),
-    min_liquidity: Number(policyData.min_liquidity ?? intent.policy?.min_liquidity ?? 500000),
+    max_risk:      Number(raw.policy?.max_risk      ?? intent.policy?.max_risk      ?? 70),
+    auto_execute:  Boolean(raw.policy?.auto_execute ?? intent.policy?.auto_execute),
+    min_liquidity: Number(raw.policy?.min_liquidity ?? intent.policy?.min_liquidity ?? 500000),
   };
 
-  const executionLog = Array.isArray(brain?.log) ? brain.log : intent.logs ?? [];
+  // Execution log — prefer brain (has latest from backend), fallback to intent
+  const executionLog = (brain?.log?.length ? brain.log : null) ?? raw.logs ?? intent.logs ?? [];
 
   const riskLevel = liveScore < 40 ? "safe" : liveScore < 70 ? "warning" : "danger";
   const riskColor = riskLevel === "safe" ? "#10B981" : riskLevel === "warning" ? "#F59E0B" : "#EF4444";

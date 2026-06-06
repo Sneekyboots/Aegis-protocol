@@ -56,7 +56,7 @@ function useMarketPrice() {
 }
 
 function AppContent() {
-  const { intents, loading, refetch } = useSuiIntents();
+  const { intents, loading, error, lastUpdated, refetch } = useSuiIntents();
   const { revokeIntent } = useRevokeIntent();
   const marketData = useMarketPrice();
 
@@ -101,6 +101,8 @@ function AppContent() {
         intents={intents}
         marketData={marketData}
         loading={loading}
+        backendError={error}
+        lastUpdated={lastUpdated}
         onKillSwitch={handleKillSwitch}
         onSimulateRogue={handleSimulateRogue}
         onResetDemo={refetch}

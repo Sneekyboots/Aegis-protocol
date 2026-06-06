@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, XCircle, AlertTriangle, Clock, Cpu, Zap } from "lucide-react";
+import { CheckCircle2, XCircle, AlertTriangle, Clock, Cpu, Zap, ArrowUpRight } from "lucide-react";
 import { QuantumBadge } from "./QuantumBadge";
 
 const SAFE_NODE = "https://static.prod-images.emergentagent.com/jobs/6a8f6157-9c1c-4c4f-9002-c2d092cb1751/images/d50d5fb2a1727897660f0e5ef3e7e2b7e21914a0a8afbe8878e292b8ab8f3bb5.png";
